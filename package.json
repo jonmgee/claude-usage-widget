@@ -1,0 +1,15 @@
+{
+  "name": "claude-usage-widget",
+  "version": "0.1.0",
+  "description": "Floating desktop widget showing your Claude Code usage, read from local logs.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.2.0"
+  },
+  "allowScripts": {
+    "electron@33.4.11": true
+  }
+}

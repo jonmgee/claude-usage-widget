@@ -1,0 +1,94 @@
+<div id="card" class="lcars">
+  <div class="top">
+    <div class="elbow"></div>
+    <div class="header">
+      <span class="hdr-title">CLAUDE&nbsp;USAGE</span>
+      <span id="plan" class="hdr-plan">MAX 5X</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="rail">
+      <button id="refresh" class="railbtn c-gold" title="Refresh now" aria-label="Refresh">
+        <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button id="mon-btn" class="railbtn c-green" title="Heartbeat monitor" aria-label="Heartbeat monitor">
+        <svg viewBox="0 0 24 24"><path d="M2 12h4l2.5-6 4 12 2.5-6H22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button id="pin" class="railbtn c-orange" title="Float on top / lie below windows" aria-label="Pin on top">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 3h6a1 1 0 0 1 .3 1.9l-.3.1v4l2.5 3.5a1 1 0 0 1-.8 1.6H13v4.9l-1 2-1-2V14.1H7.3a1 1 0 0 1-.8-1.6L9 9V5l-.3-.1A1 1 0 0 1 9 3z"/></svg>
+      </button>
+      <button id="dock" class="railbtn c-lav" title="Dock to bottom-right corner" aria-label="Dock to corner">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="12.5" y="12.5" width="6.5" height="6.5" fill="currentColor"/></svg>
+      </button>
+      <button id="gear" class="railbtn c-violet" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7.6 7.6 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.6a7.8 7.8 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 1.7 1l.3 2.5h4l.3-2.5a7.6 7.6 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+      </button>
+      <button id="close" class="railbtn c-red" title="Close" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      </button>
+      <div class="railcap"></div>
+    </div>
+
+    <div class="content">
+      <div id="gauges"></div>
+      <section class="block">
+        <div class="brow">
+          <span class="blabel c-orange">CURRENT SESSION</span>
+          <span id="s-pct" class="bval">--</span>
+        </div>
+        <div class="track"><div id="s-fill" class="fill c-orange"></div></div>
+        <div class="sub"><span id="s-reset">--</span><span id="s-abs" class="abs"></span></div>
+      </section>
+
+      <section class="block">
+        <div class="brow">
+          <span class="blabel c-lav">WEEKLY&nbsp;&middot;&nbsp;ALL MODELS</span>
+          <span id="w-pct" class="bval">--</span>
+        </div>
+        <div class="track"><div id="w-fill" class="fill c-lav"></div></div>
+        <div class="sub"><span id="w-reset"></span><span id="w-abs" class="abs"></span></div>
+      </section>
+
+      <div id="pingline" class="pingline hidden"></div>
+
+      <div id="monitor" class="hidden">
+        <div class="mon-title">HEARTBEAT MONITOR</div>
+        <div id="ecg" class="ecg"></div>
+        <div id="ecg-cap" class="ecg-cap"></div>
+      </div>
+
+      <div id="settings" class="hidden">
+        <div class="srow"><label>SKIN</label><select id="skin">
+          <option value="lcars">LCARS</option>
+          <option value="dash">DASHBOARD</option>
+          <option value="term">RETRO TERMINAL</option>
+          <option value="scribble">SCRIBBLE</option>
+          <option value="enigma">ENIGMA</option>
+        </select></div>
+        <div class="srow"><label>AUTO-PING</label><input id="hb-on" type="checkbox"></div>
+        <div id="hb-times"></div>
+        <button id="hb-add" class="mini">+ ADD PING TIME</button>
+        <div class="srow"><label>KEEP MAC AWAKE</label><select id="caff">
+          <option value="off">OFF</option>
+          <option value="system">SYSTEM ONLY</option>
+          <option value="system-off">SYSTEM ONLY + SCREEN OFF NOW</option>
+          <option value="display">SYSTEM + DISPLAY</option>
+        </select></div>
+        <div class="srow"><label>REFRESH (SEC)</label><input id="b-refresh" type="number" min="15" step="5"></div>
+        <div class="snote">EACH PING SENDS A TINY MESSAGE AT ITS TIME TO START A 5-HOUR WINDOW (ENDS ~5H LATER) &middot; ONLY IF NO WINDOW IS ACTIVE &middot; KEEP MAC AWAKE = SYSTEM ONLY LETS THE SCREEN SLEEP BUT PINGS STILL FIRE (LID OPEN OR ON POWER)</div>
+        <div class="sbtns">
+          <button id="pingnow" class="ghost">PING&nbsp;NOW</button>
+          <button id="save">SAVE</button>
+        </div>
+      </div>
+
+      <div class="foot">
+        <span class="foot-code">LCARS&nbsp;24-47</span>
+        <span id="updated">LOADING&hellip;</span>
+      </div>
+    </div>
+  </div>
+</div>
+<link rel="stylesheet" href="styles.css">
+<script src="renderer.js"></script>
