@@ -98,6 +98,27 @@ function paintPing(d) {
   el.classList.toggle('fired', !!firedToday);
 }
 
+// Auto step-down status line
+function paintStepdown(d) {
+  const el = $('stepline');
+  const sd = d.stepdown;
+  if (!sd || !sd.enabled) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  const tri = '\u25BE';
+  if (sd.applied) {
+    el.textContent = `${tri} STEPPED DOWN \u2192 ${String(sd.applied).toUpperCase()}`;
+    el.classList.add('fired');
+    return;
+  }
+  const pct = d.session ? d.session.pct : null;
+  const tiers = (sd.tiers || []).slice().sort((a, b) => a.pct - b.pct);
+  const next = tiers.find((t) => pct == null || pct < t.pct);
+  el.textContent = next
+    ? `${tri} STEP-DOWN AT ${next.pct}% \u2192 ${String(next.model).toUpperCase()}`
+    : `${tri} STEP-DOWN ARMED`;
+  el.classList.remove('fired');
+}
+
 // Draw an ECG-style trace: flat baseline with a QRS spike at each ping, over a
 // 24-hour window, time axis along the bottom.
 function drawECG(history) {
@@ -259,6 +280,7 @@ function render(d) {
   $('w-abs').textContent = d.week.tokens ? fmtTokens(d.week.tokens) + ' tok' : '';
 
   paintPing(d);
+  paintStepdown(d);
   if (!$('monitor').classList.contains('hidden')) renderMonitor(d);
   paintFooter(d);
   fit();
@@ -310,6 +332,44 @@ function readTimeRows() {
 }
 $('hb-add').onclick = () => { addTimeRow(''); fit(); };
 
+// --- step-down tier editor ---
+const SD_MODELS = ['opus', 'sonnet', 'haiku'];
+function addTierRow(t) {
+  const row = document.createElement('div');
+  row.className = 'srow sdrow';
+  const opts = SD_MODELS.map((m) =>
+    `<option value="${m}"${t && t.model === m ? ' selected' : ''}>${m.toUpperCase()}</option>`).join('');
+  row.innerHTML = '<label>AT %</label><span class="hbwrap">' +
+    `<input type="number" class="sd-pct" min="1" max="99" step="1" value="${t ? t.pct : ''}">` +
+    `<select class="sd-model">${opts}</select>` +
+    '<button class="hbdel" title="Remove this tier">\u2715</button></span>';
+  row.querySelector('.hbdel').onclick = () => { row.remove(); fit(); };
+  $('sd-tiers').appendChild(row);
+}
+function setTierRows(tiers) {
+  $('sd-tiers').innerHTML = '';
+  const list = tiers && tiers.length ? tiers
+    : [{ pct: 50, model: 'opus' }, { pct: 75, model: 'sonnet' }, { pct: 90, model: 'haiku' }];
+  for (const t of list) addTierRow(t);
+}
+function readTierRows() {
+  const out = [];
+  for (const row of document.querySelectorAll('#sd-tiers .sdrow')) {
+    const pct = Number(row.querySelector('.sd-pct').value);
+    const model = row.querySelector('.sd-model').value;
+    if (pct >= 1 && pct <= 99 && model) out.push({ pct, model });
+  }
+  out.sort((a, b) => a.pct - b.pct);
+  return out;
+}
+$('sd-add').onclick = () => { addTierRow(null); fit(); };
+$('sd-restore').onclick = async () => {
+  const btn = $('sd-restore');
+  await window.api.restoreModel();
+  btn.textContent = 'RESTORED \u2713';
+  setTimeout(() => { btn.textContent = 'RESTORE MODEL NOW'; }, 2000);
+};
+
 // skin applies instantly on change — no save needed
 $('skin').onchange = () => { window.api.setConfig({ skin: $('skin').value || 'lcars' }); };
 
@@ -322,6 +382,8 @@ $('gear').onclick = async () => {
     setTimeRows(c.heartbeatTimes);
     $('caff').value = c.caffeinate || 'off';
     $('skin').value = c.skin || 'lcars';
+    $('sd-on').checked = !!c.stepdownEnabled;
+    setTierRows(c.stepdownTiers);
   }
   s.classList.toggle('hidden');
   fit();
@@ -333,6 +395,8 @@ $('save').onclick = async () => {
     heartbeatEnabled: $('hb-on').checked,
     heartbeatTimes: readTimeRows(),
     caffeinate: $('caff').value || 'off',
+    stepdownEnabled: $('sd-on').checked,
+    stepdownTiers: readTierRows(),
   });
   $('settings').classList.add('hidden');
   fit();

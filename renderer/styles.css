@@ -150,6 +150,8 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
   cursor: pointer; margin-bottom: 7px;
 }
 .mini:hover { background: var(--lav); color: #000; }
+.sdrow .sd-pct { width: 46px; }
+.sdrow .sd-model { max-width: none; width: 84px; }
 
 /* ============================================================
    SKIN: DASHBOARD (Bugatti instrument cluster)

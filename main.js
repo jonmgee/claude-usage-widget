@@ -20,6 +20,10 @@ const DEFAULTS = {
   lastHeartbeatAt: null,   // ms of last successful ping (for the countdown + display)
   lastFires: {},           // { 'HH:MM': dayKey } guard so each time fires once/day
   heartbeats: [],          // ms timestamps of every ping (drives the ECG monitor)
+  stepdownEnabled: false,
+  stepdownTiers: [],       // [{pct: 50, model: 'opus'}, ...] highest crossed tier wins
+  stepdownOriginal: null,  // settings.json "model" before we touched it (null = key absent)
+  stepdownApplied: null,   // model we currently forced (null = not active)
 };
 
 // Locate the Claude Code CLI (the "stable launcher").
@@ -75,6 +79,12 @@ function build() {
     ...compute({ heartbeatAt: cfg.lastHeartbeatAt }),
     plan: readPlan(),
     skin: cfg.skin || 'lcars',
+    stepdown: {
+      enabled: cfg.stepdownEnabled,
+      tiers: cfg.stepdownTiers || [],
+      applied: cfg.stepdownApplied,
+      original: cfg.stepdownOriginal,
+    },
     heartbeat: {
       enabled: cfg.heartbeatEnabled,
       times: cfg.heartbeatTimes || [],
@@ -88,6 +98,7 @@ function push() {
   const u = build();
   if (win && !win.isDestroyed()) win.webContents.send('usage', u);
   maybeHeartbeat(u);
+  maybeStepdown(u);
 }
 
 // Fire a minimal, cheap CLI call to start a 5-hour window. Resolves {ok} / {ok:false,error}.
@@ -132,6 +143,55 @@ function maybeHeartbeat(usage) {
     fireHeartbeat();
     return; // at most one ping per tick
   }
+}
+
+// --- auto step-down: swap Claude Code's default model as session usage climbs ---
+// Writes the "model" key in ~/.claude/settings.json (read-merge-write, nothing else
+// touched). Affects NEW sessions/conversations; a live conversation keeps its model
+// until /model or restart. Restores the original automatically when usage falls
+// back below every tier (i.e. the 5-hour window reset), on disable, and on quit.
+const CC_SETTINGS = path.join(os.homedir(), '.claude', 'settings.json');
+function readCCModel() {
+  try {
+    const j = JSON.parse(fs.readFileSync(CC_SETTINGS, 'utf8'));
+    return typeof j.model === 'string' ? j.model : null;
+  } catch { return null; }
+}
+function writeCCModel(model) {
+  let j = {};
+  try { j = JSON.parse(fs.readFileSync(CC_SETTINGS, 'utf8')); } catch { /* fresh file */ }
+  if (typeof j !== 'object' || j === null || Array.isArray(j)) j = {};
+  if (model == null) delete j.model; else j.model = model;
+  try {
+    fs.mkdirSync(path.dirname(CC_SETTINGS), { recursive: true });
+    fs.writeFileSync(CC_SETTINGS, JSON.stringify(j, null, 2));
+    return true;
+  } catch { return false; }
+}
+function applyStepdown(target) {
+  if (cfg.stepdownApplied == null) cfg.stepdownOriginal = readCCModel();
+  if (!writeCCModel(target)) return;
+  cfg.stepdownApplied = target;
+  saveCfg(cfg);
+}
+function restoreStepdown() {
+  if (cfg.stepdownApplied == null) return;
+  writeCCModel(cfg.stepdownOriginal);
+  cfg.stepdownApplied = null;
+  cfg.stepdownOriginal = null;
+  saveCfg(cfg);
+}
+function maybeStepdown(usage) {
+  if (!cfg.stepdownEnabled) return;
+  const pct = usage.session ? usage.session.pct : null;
+  const tiers = (cfg.stepdownTiers || [])
+    .filter((t) => t && t.pct > 0 && t.pct < 100 && t.model)
+    .sort((a, b) => a.pct - b.pct);
+  if (pct == null || !tiers.length) return;
+  let target = null;
+  for (const t of tiers) if (pct >= t.pct) target = t.model;
+  if (target && cfg.stepdownApplied !== target) applyStepdown(target);
+  else if (!target && cfg.stepdownApplied) restoreStepdown(); // window reset
 }
 
 // --- caffeinate: keep the Mac awake so scheduled pings can fire ---
@@ -191,7 +251,10 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => app.quit());
-app.on('will-quit', () => { if (caffProc) { try { caffProc.kill(); } catch { /* ignore */ } } });
+app.on('will-quit', () => {
+  if (caffProc) { try { caffProc.kill(); } catch { /* ignore */ } }
+  restoreStepdown(); // never leave a silently downgraded model behind
+});
 
 ipcMain.handle('refresh', () => build());
 ipcMain.handle('getConfig', () => cfg);
@@ -200,9 +263,11 @@ ipcMain.handle('setConfig', (_e, patch) => {
   saveCfg(cfg);
   if ('refreshSec' in patch) startTimer();
   if ('caffeinate' in patch) applyCaffeinate(true);
+  if ('stepdownEnabled' in patch && !patch.stepdownEnabled) restoreStepdown();
   push();
   return cfg;
 });
+ipcMain.handle('restoreModel', () => { restoreStepdown(); push(); return { ok: true }; });
 ipcMain.on('togglePin', () => {
   cfg.alwaysOnTop = !cfg.alwaysOnTop;
   saveCfg(cfg);

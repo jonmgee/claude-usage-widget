@@ -51,6 +51,7 @@
       </section>
 
       <div id="pingline" class="pingline hidden"></div>
+      <div id="stepline" class="pingline hidden"></div>
 
       <div id="monitor" class="hidden">
         <div class="mon-title">HEARTBEAT MONITOR</div>
@@ -69,6 +70,10 @@
         <div class="srow"><label>AUTO-PING</label><input id="hb-on" type="checkbox"></div>
         <div id="hb-times"></div>
         <button id="hb-add" class="mini">+ ADD PING TIME</button>
+        <div class="srow"><label>AUTO STEP-DOWN</label><input id="sd-on" type="checkbox"></div>
+        <div id="sd-tiers"></div>
+        <button id="sd-add" class="mini">+ ADD TIER</button>
+        <button id="sd-restore" class="mini">RESTORE MODEL NOW</button>
         <div class="srow"><label>KEEP MAC AWAKE</label><select id="caff">
           <option value="off">OFF</option>
           <option value="system">SYSTEM ONLY</option>

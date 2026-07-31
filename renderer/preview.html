@@ -45,6 +45,7 @@
         <div class="sub"><span id="w-reset"></span><span id="w-abs" class="abs"></span></div>
       </section>
       <div id="pingline" class="pingline hidden"></div>
+      <div id="stepline" class="pingline hidden"></div>
       <div id="monitor" class="hidden">
         <div class="mon-title">HEARTBEAT MONITOR</div>
         <div id="ecg" class="ecg"></div>
@@ -61,6 +62,10 @@
         <div class="srow"><label>AUTO-PING</label><input id="hb-on" type="checkbox"></div>
         <div id="hb-times"></div>
         <button id="hb-add" class="mini">+ ADD PING TIME</button>
+        <div class="srow"><label>AUTO STEP-DOWN</label><input id="sd-on" type="checkbox"></div>
+        <div id="sd-tiers"></div>
+        <button id="sd-add" class="mini">+ ADD TIER</button>
+        <button id="sd-restore" class="mini">RESTORE MODEL NOW</button>
         <div class="srow"><label>KEEP MAC AWAKE</label><select id="caff">
           <option value="off">OFF</option>
           <option value="system">SYSTEM ONLY</option>
@@ -87,9 +92,10 @@
     onUsage: (cb) => { _render = cb; },
     onPin: () => {},
     refresh: async () => MOCK,
-    getConfig: async () => ({ refreshSec: 60, heartbeatEnabled: true, heartbeatTimes: ['07:45', '15:30'], caffeinate: 'system', skin: MOCK.skin }),
+    getConfig: async () => ({ refreshSec: 60, heartbeatEnabled: true, heartbeatTimes: ['07:45', '15:30'], caffeinate: 'system', skin: MOCK.skin, stepdownEnabled: true, stepdownTiers: [{pct:50,model:'opus'},{pct:75,model:'sonnet'},{pct:90,model:'haiku'}] }),
     setConfig: async (patch) => { if (patch.skin) { MOCK.skin = patch.skin; _render(MOCK); } },
     togglePin: () => {}, dock: () => {}, close: () => {},
+    restoreModel: async () => ({ ok: true }),
     pingNow: async () => ({ ok: true }),
   };
   const MOCK = {
@@ -98,6 +104,7 @@
     session: { pct: 22, reset: Date.now() + 4 * 3600e3 + 1 * 60e3, active: true, tokens: 4.6e6 },
     week: { pct: 3, reset: new Date('2026-08-04T16:03:00').getTime(), tokens: 99.3e6 },
     credits: null,
+    stepdown: { enabled: true, tiers: [{pct:50,model:'opus'},{pct:75,model:'sonnet'},{pct:90,model:'haiku'}], applied: null, original: null },
     heartbeat: {
       enabled: true, times: ['07:45', '15:30'], available: true,
       lastAt: Date.now() - 40 * 60e3,

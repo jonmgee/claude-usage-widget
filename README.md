@@ -63,6 +63,32 @@ working — giving you two full session allowances across an evening instead of 
 - Needs the Claude Code CLI at `~/.local/bin/claude` (auto-detected).
 - **PING NOW** in settings fires one immediately.
 
+### Auto step-down (model tiers)
+
+As your session fills up, the widget can automatically switch Claude Code's
+default model to something cheaper, so you don't burn the last of a window on the
+big model. ⚙ → AUTO STEP-DOWN, then set tiers — e.g.:
+
+- at **50%** → **Opus**
+- at **75%** → **Sonnet**
+- at **90%** → **Haiku**
+
+Add/remove tiers freely (any thresholds, any of Opus/Sonnet/Haiku). The highest
+crossed tier wins. The widget shows its state on the card: `STEP-DOWN AT 50% →
+OPUS` when armed, `STEPPED DOWN → SONNET` when tripped.
+
+How it works, honestly:
+
+- It writes the `"model"` key in `~/.claude/settings.json` (read-merge-write —
+  nothing else in the file is touched). That changes the default for **new**
+  sessions and conversations. A conversation you're already in keeps its model
+  until you `/model` or restart it — the on-card indicator is your cue.
+- Your original setting is remembered and **auto-restored** when the 5-hour
+  window resets (usage falls back below the tiers), when you untick the feature,
+  or when the widget quits. RESTORE MODEL NOW in settings forces it back anytime.
+- It can lag your threshold by a few minutes (usage data updates every ~5 min).
+- It has no effect on the claude.ai desktop/web app — Claude Code only.
+
 ### Keep Mac awake (caffeinate)
 
 Pings can't fire while the Mac is asleep. ⚙ → KEEP MAC AWAKE runs Apple's
