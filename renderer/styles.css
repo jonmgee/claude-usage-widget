@@ -450,3 +450,310 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
 #card[data-skin="enigma"] .mini:hover { background: var(--brass-dk); color: var(--ivory); }
 #card[data-skin="enigma"] .hbdel { border-color: #a05038; color: #d98870; border-radius: 50%; }
 #card[data-skin="enigma"] .hbdel:hover { background: #a05038; color: var(--ivory); }
+
+/* ============================================================
+   Annunciator grid (reactor skin only)
+   ============================================================ */
+#annunc { display: none; }
+#card[data-skin="reactor"] #annunc {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px;
+}
+.atile {
+  background: #22221e; color: rgba(255,255,255,0.22);
+  border: 1px solid #14161a; border-radius: 2px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-align: center;
+  padding: 5px 2px;
+}
+.atile.a-green.lit { background: #1d8a4c; color: #eaffea; box-shadow: 0 0 8px rgba(60,220,120,0.5); }
+.atile.a-amber.lit { background: #c99422; color: #fff8e0; box-shadow: 0 0 8px rgba(230,180,60,0.5); }
+.atile.a-red.lit { background: #c0392b; color: #ffecec; box-shadow: 0 0 10px rgba(230,70,50,0.6);
+  animation: lcars-blink 0.8s steps(2, jump-none) infinite; }
+.atile.a-white.lit { background: #d8d8cc; color: #24261f; }
+
+/* ============================================================
+   SKIN: NIXIE STEAMPUNK (copper, brass, glowing tubes)
+   ============================================================ */
+#card[data-skin="nixie"] {
+  --copper: #c77b46; --brassx: #c9a55a; --nglow: #ff9d3c; --cream: #f0d9b0;
+  color: var(--cream);
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.16) 0 2px, transparent 2px 9px),
+    linear-gradient(160deg, #2b1d12, #191009 70%);
+  border: 3px solid #8a5426; border-radius: 8px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+}
+#card[data-skin="nixie"] .elbow, #card[data-skin="nixie"] .railcap { display: none; }
+#card[data-skin="nixie"] .header {
+  background: linear-gradient(#d98e54, #8a4f26 60%, #b06a35);
+  border: 1px solid #5c3416; border-radius: 5px; align-items: center; padding: 0 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.5);
+}
+#card[data-skin="nixie"] .hdr-title { color: #221104; text-shadow: 0 1px 0 rgba(255,255,255,0.3); font-size: 15px; }
+#card[data-skin="nixie"] .hdr-plan { color: #40220c; opacity: 1; }
+#card[data-skin="nixie"] .rail { width: 44px; gap: 8px; align-items: center; padding-top: 6px; }
+#card[data-skin="nixie"] .railbtn {
+  width: 31px; height: 31px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e2bd7c, #96702f 70%);
+  border: 2px solid #5c3416; color: #2b1a08;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.35);
+}
+#card[data-skin="nixie"] .railbtn svg { width: 15px; height: 15px; }
+#card[data-skin="nixie"] .blabel {
+  background: #170e07; border: 1px solid var(--copper); color: var(--cream); border-radius: 3px;
+}
+#card[data-skin="nixie"] .bval {
+  font-family: Georgia, "Times New Roman", serif;
+  background: #140a05; color: var(--nglow);
+  text-shadow: 0 0 7px rgba(255,130,30,0.95), 0 0 16px rgba(255,110,20,0.55);
+  border: 2px solid rgba(210,230,230,0.28); border-bottom: 4px solid #2aa198;
+  border-radius: 9px 9px 5px 5px; padding: 1px 8px; font-size: 17px;
+}
+#card[data-skin="nixie"] .track { background: #120b06; border: 1px solid #6b4a2a; height: 16px; border-radius: 3px; }
+#card[data-skin="nixie"] .fill {
+  background: linear-gradient(#ffd9a0, var(--nglow) 55%, #d97a1e) !important;
+  box-shadow: 0 0 10px 1px rgba(255,140,40,0.65); border-radius: 0;
+}
+#card[data-skin="nixie"] .fill.alert { background: linear-gradient(#ffb0a0, #ff5a3d 55%, #c23012) !important; }
+#card[data-skin="nixie"] .sub { color: #c9a883; }
+#card[data-skin="nixie"] .abs { color: #8a7355; }
+#card[data-skin="nixie"] .pingline { color: var(--nglow); }
+#card[data-skin="nixie"] .pingline.fired { color: #ffd9a0; }
+#card[data-skin="nixie"] .foot { border-top: 2px solid var(--copper); color: #c9a883; }
+#card[data-skin="nixie"] .foot-code { color: var(--copper); }
+#card[data-skin="nixie"] #monitor { border-top: 2px solid var(--copper); }
+#card[data-skin="nixie"] .mon-title { color: var(--brassx); }
+#card[data-skin="nixie"] .ecg { --ecg: #ff9d3c; --ecg-bg: #140a05; --ecg-border: #8a5426; --ecg-grid: #2b1a0c; --ecg-label: #8a7355; }
+#card[data-skin="nixie"] .ecg-cap { color: #c9a883; }
+#card[data-skin="nixie"] #settings { border-top: 2px solid var(--copper); }
+#card[data-skin="nixie"] .srow label { color: #c9a883; }
+#card[data-skin="nixie"] .srow input, #card[data-skin="nixie"] .srow select {
+  background: #140a05; color: var(--cream); border-bottom: 2px solid var(--copper);
+}
+#card[data-skin="nixie"] #save { background: linear-gradient(#d98e54, #8a4f26 60%, #b06a35); color: #221104; border: 1px solid #5c3416; border-radius: 5px; }
+#card[data-skin="nixie"] .ghost { color: var(--brassx); border: 2px solid var(--copper); border-radius: 5px; }
+#card[data-skin="nixie"] .mini { border: 1px dashed var(--copper); color: var(--brassx); }
+#card[data-skin="nixie"] .hbdel { border-color: #a05038; color: #d98870; border-radius: 50%; }
+#card[data-skin="nixie"] .snote { color: #8a7355; }
+
+/* ============================================================
+   SKIN: SYNTHWAVE (neon on deep purple)
+   ============================================================ */
+#card[data-skin="synth"] {
+  --npink: #ff2bd6; --ncyan: #2be8f4; --ndim: #7a6fae;
+  color: #d8d2f0;
+  background: linear-gradient(165deg, #180a33, #10062a 70%);
+  border: 2px solid var(--npink); border-radius: 12px;
+  box-shadow: 0 0 14px rgba(255,43,214,0.45), inset 0 0 20px rgba(60,20,120,0.4);
+}
+#card[data-skin="synth"] .elbow, #card[data-skin="synth"] .railcap { display: none; }
+#card[data-skin="synth"] .header {
+  background: transparent; border: 2px solid var(--ncyan); border-radius: 8px;
+  align-items: center; padding: 0 12px;
+  box-shadow: 0 0 8px rgba(43,232,244,0.35), inset 0 0 8px rgba(43,232,244,0.15);
+}
+#card[data-skin="synth"] .hdr-title { color: var(--ncyan); text-shadow: 0 0 8px rgba(43,232,244,0.8); font-size: 15px; }
+#card[data-skin="synth"] .hdr-plan { color: var(--npink); opacity: 1; text-shadow: 0 0 6px rgba(255,43,214,0.7); }
+#card[data-skin="synth"] .railbtn {
+  background: #1a0f33; border: 1px solid var(--ncyan); color: var(--ncyan); border-radius: 6px;
+  box-shadow: 0 0 6px rgba(43,232,244,0.3);
+}
+#card[data-skin="synth"] .railbtn:hover { border-color: var(--npink); color: var(--npink); box-shadow: 0 0 8px rgba(255,43,214,0.5); filter: none; }
+#card[data-skin="synth"] .blabel { background: transparent; border: 1px solid var(--npink); color: var(--npink); text-shadow: 0 0 6px rgba(255,43,214,0.6); }
+#card[data-skin="synth"] .bval { color: var(--ncyan); text-shadow: 0 0 8px rgba(43,232,244,0.8); }
+#card[data-skin="synth"] .track { background: #241447; border-radius: 3px; }
+#card[data-skin="synth"] #s-fill { background: var(--npink) !important; box-shadow: 0 0 9px rgba(255,43,214,0.7); }
+#card[data-skin="synth"] #w-fill { background: var(--ncyan) !important; box-shadow: 0 0 9px rgba(43,232,244,0.7); }
+#card[data-skin="synth"] .fill.alert { background: #ff3b30 !important; }
+#card[data-skin="synth"] .sub { color: var(--ndim); }
+#card[data-skin="synth"] .abs { color: #5a5090; }
+#card[data-skin="synth"] .pingline { color: var(--ncyan); }
+#card[data-skin="synth"] .pingline.fired { color: var(--npink); }
+#card[data-skin="synth"] .foot { border-top: 1px solid var(--ndim); color: var(--ndim); }
+#card[data-skin="synth"] .foot-code { color: var(--npink); }
+#card[data-skin="synth"] #monitor { border-top: 1px solid var(--ndim); }
+#card[data-skin="synth"] .mon-title { color: var(--npink); text-shadow: 0 0 6px rgba(255,43,214,0.6); }
+#card[data-skin="synth"] .ecg { --ecg: #ff2bd6; --ecg-bg: #10062a; --ecg-border: #3a2470; --ecg-grid: #2a1854; --ecg-label: #7a6fae; }
+#card[data-skin="synth"] .ecg-cap { color: var(--ndim); }
+#card[data-skin="synth"] #settings { border-top: 1px solid var(--ndim); }
+#card[data-skin="synth"] .srow label { color: var(--ndim); }
+#card[data-skin="synth"] .srow input, #card[data-skin="synth"] .srow select {
+  background: #1a0f33; color: var(--ncyan); border-bottom: 2px solid var(--npink);
+}
+#card[data-skin="synth"] #save { background: var(--npink); color: #10062a; border: none; border-radius: 6px; box-shadow: 0 0 10px rgba(255,43,214,0.5); }
+#card[data-skin="synth"] .ghost { color: var(--ncyan); border: 2px solid var(--ncyan); border-radius: 6px; }
+#card[data-skin="synth"] .mini { border: 1px dashed var(--ncyan); color: var(--ncyan); }
+#card[data-skin="synth"] .hbdel { border-color: var(--npink); color: var(--npink); border-radius: 4px; }
+#card[data-skin="synth"] .snote { color: #5a5090; }
+
+/* ============================================================
+   SKIN: COCKPIT (737 EFIS — grey panel, black screens)
+   ============================================================ */
+#card[data-skin="cockpit"] {
+  --efis-cyan: #35e0e8; --efis-green: #23d160; --efis-amber: #ffb300; --efis-mag: #ff4bd8;
+  color: #cfd4d8;
+  background: linear-gradient(#33373b, #26292d);
+  border: 2px solid #131517; border-radius: 8px;
+}
+#card[data-skin="cockpit"] .elbow, #card[data-skin="cockpit"] .railcap { display: none; }
+#card[data-skin="cockpit"] .header {
+  background: #06090b; border: 2px solid #4a4e53; border-radius: 4px;
+  align-items: center; padding: 0 12px;
+}
+#card[data-skin="cockpit"] .hdr-title { color: var(--efis-cyan); font-size: 14px; }
+#card[data-skin="cockpit"] .hdr-plan { color: var(--efis-amber); opacity: 1; }
+#card[data-skin="cockpit"] .rail { width: 46px; gap: 7px; align-items: center; padding-top: 5px; }
+#card[data-skin="cockpit"] .railbtn {
+  width: 32px; height: 27px; border-radius: 3px;
+  background: linear-gradient(#2c3034, #1c1f22); border: 1px solid #55595e; color: #cfd4d8;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+#card[data-skin="cockpit"] .railbtn:hover { color: var(--efis-amber); filter: none; }
+#card[data-skin="cockpit"] .content {
+  background: #04070a; border: 2px solid #4a4e53; border-radius: 4px; padding: 10px 10px 8px;
+}
+#card[data-skin="cockpit"] .blabel { background: transparent; border: none; color: var(--efis-cyan); padding-left: 0; }
+#card[data-skin="cockpit"] .bval {
+  font-family: "Menlo", monospace; font-size: 16px;
+  color: var(--efis-amber); background: #0d0f08; border: 1px solid #3a3d30;
+  border-radius: 3px; padding: 1px 7px; text-shadow: 0 0 6px rgba(255,179,0,0.6);
+}
+#card[data-skin="cockpit"] .track { background: #101314; border: 1px solid #2c3034; border-radius: 2px; }
+#card[data-skin="cockpit"] .fill { background: var(--efis-green) !important; border-radius: 0; }
+#card[data-skin="cockpit"] .fill.alert { background: #ff3b30 !important; }
+#card[data-skin="cockpit"] .sub { color: #1d8a90; }
+#card[data-skin="cockpit"] .abs { color: #55595e; }
+#card[data-skin="cockpit"] .pingline { color: var(--efis-mag); }
+#card[data-skin="cockpit"] .pingline.fired { color: var(--efis-green); }
+#card[data-skin="cockpit"] .foot { border-top: 1px solid #2c3034; color: #7d8388; }
+#card[data-skin="cockpit"] .foot-code { color: var(--efis-cyan); }
+#card[data-skin="cockpit"] #monitor { border-top: 1px solid #2c3034; }
+#card[data-skin="cockpit"] .mon-title { color: var(--efis-green); }
+#card[data-skin="cockpit"] .ecg { --ecg: #23d160; --ecg-bg: #04110a; --ecg-border: #2c3034; --ecg-grid: #14361d; --ecg-label: #1d8a63; }
+#card[data-skin="cockpit"] .ecg-cap { color: #1d8a63; }
+#card[data-skin="cockpit"] #settings { border-top: 1px solid #2c3034; }
+#card[data-skin="cockpit"] .srow label { color: var(--efis-cyan); }
+#card[data-skin="cockpit"] .srow input, #card[data-skin="cockpit"] .srow select {
+  background: #0d0f08; color: var(--efis-amber); border-bottom: 2px solid #55595e; font-family: "Menlo", monospace; font-size: 12px;
+}
+#card[data-skin="cockpit"] #save { background: linear-gradient(#2c3034, #1c1f22); color: var(--efis-green); border: 1px solid #55595e; border-radius: 3px; }
+#card[data-skin="cockpit"] .ghost { color: var(--efis-amber); border: 1px solid #55595e; border-radius: 3px; }
+#card[data-skin="cockpit"] .mini { border: 1px dashed #55595e; color: var(--efis-cyan); }
+#card[data-skin="cockpit"] .hbdel { border-color: #a04438; color: #ff6a5a; border-radius: 3px; }
+#card[data-skin="cockpit"] .snote { color: #55595e; }
+
+/* ============================================================
+   SKIN: GAME BOY (DMG pea-green screen)
+   ============================================================ */
+#card[data-skin="gameboy"] {
+  --gb0: #0f380f; --gb1: #306230; --gb2: #8bac0f; --gb3: #9bbc0f;
+  font-family: "Courier New", monospace; font-weight: 700; letter-spacing: 0;
+  color: var(--gb0);
+  background: var(--gb3);
+  border: 4px double var(--gb0); border-radius: 6px;
+}
+#card[data-skin="gameboy"] .elbow, #card[data-skin="gameboy"] .railcap { display: none; }
+#card[data-skin="gameboy"] .header {
+  background: transparent; border: 3px double var(--gb0); border-radius: 4px;
+  align-items: center; padding: 0 10px;
+}
+#card[data-skin="gameboy"] .hdr-title { color: var(--gb0); font-size: 14px; }
+#card[data-skin="gameboy"] .hdr-plan { color: var(--gb1); opacity: 1; }
+#card[data-skin="gameboy"] .railbtn {
+  background: var(--gb3); border: 3px solid var(--gb0); color: var(--gb0); border-radius: 4px;
+}
+#card[data-skin="gameboy"] .railbtn:hover { background: var(--gb0); color: var(--gb3); filter: none; }
+#card[data-skin="gameboy"] .blabel { background: transparent; border: 2px solid var(--gb0); color: var(--gb0); border-radius: 3px; }
+#card[data-skin="gameboy"] .bval { color: var(--gb0); font-size: 18px; }
+#card[data-skin="gameboy"] .track { background: var(--gb2); border: 2px solid var(--gb0); height: 16px; border-radius: 0; }
+#card[data-skin="gameboy"] .track::after {
+  background-image: repeating-linear-gradient(90deg, transparent 0 11px, var(--gb3) 11px 14px);
+}
+#card[data-skin="gameboy"] .fill { background: var(--gb0) !important; border-radius: 0; }
+#card[data-skin="gameboy"] .fill.alert { background: var(--gb0) !important; animation: lcars-blink 0.7s steps(2, jump-none) infinite; }
+#card[data-skin="gameboy"] .sub { color: var(--gb1); }
+#card[data-skin="gameboy"] .abs { color: var(--gb1); }
+#card[data-skin="gameboy"] .pingline { color: var(--gb0); }
+#card[data-skin="gameboy"] .pingline.fired { color: var(--gb1); }
+#card[data-skin="gameboy"] .foot { border-top: 3px double var(--gb0); color: var(--gb1); }
+#card[data-skin="gameboy"] .foot-code { color: var(--gb1); }
+#card[data-skin="gameboy"] #updated.stale { color: var(--gb0); }
+#card[data-skin="gameboy"] #monitor { border-top: 3px double var(--gb0); }
+#card[data-skin="gameboy"] .mon-title { color: var(--gb0); }
+#card[data-skin="gameboy"] .ecg { --ecg: #0f380f; --ecg-bg: #9bbc0f; --ecg-border: #0f380f; --ecg-grid: #8bac0f; --ecg-label: #306230; border-width: 2px; }
+#card[data-skin="gameboy"] .ecg-cap { color: var(--gb1); }
+#card[data-skin="gameboy"] #settings { border-top: 3px double var(--gb0); }
+#card[data-skin="gameboy"] .srow label { color: var(--gb0); }
+#card[data-skin="gameboy"] .srow input, #card[data-skin="gameboy"] .srow select {
+  background: var(--gb3); color: var(--gb0); border: 2px solid var(--gb0); border-radius: 0; font-family: inherit; font-size: 12px;
+}
+#card[data-skin="gameboy"] .srow input[type="checkbox"] { accent-color: var(--gb0); }
+#card[data-skin="gameboy"] #save { background: var(--gb0); color: var(--gb3); border: none; border-radius: 0; }
+#card[data-skin="gameboy"] .ghost { color: var(--gb0); border: 2px solid var(--gb0); border-radius: 0; }
+#card[data-skin="gameboy"] .ghost:hover { background: var(--gb0); color: var(--gb3); }
+#card[data-skin="gameboy"] .mini { border: 2px dashed var(--gb0); color: var(--gb0); }
+#card[data-skin="gameboy"] .mini:hover { background: var(--gb0); color: var(--gb3); }
+#card[data-skin="gameboy"] .hbdel { border: 2px solid var(--gb0); color: var(--gb0); border-radius: 0; }
+#card[data-skin="gameboy"] .hbdel:hover { background: var(--gb0); color: var(--gb3); }
+#card[data-skin="gameboy"] .snote { color: var(--gb1); }
+
+/* ============================================================
+   SKIN: REACTOR (TMI seafoam panel, annunciators, strip chart)
+   ============================================================ */
+#card[data-skin="reactor"] {
+  --rx-panel-hi: #aec9be; --rx-panel-lo: #93b2a6; --rx-ink: #1c2b26; --rx-led: #ff4b3a;
+  color: var(--rx-ink);
+  background: linear-gradient(var(--rx-panel-hi), var(--rx-panel-lo));
+  border: 3px solid #5c7a6e; border-radius: 6px;
+}
+#card[data-skin="reactor"] .elbow, #card[data-skin="reactor"] .railcap { display: none; }
+#card[data-skin="reactor"] .header {
+  background: linear-gradient(#9db8ac, #85a294); border: 2px solid #5c7a6e; border-radius: 3px;
+  align-items: center; padding: 0 12px;
+}
+#card[data-skin="reactor"] .hdr-title { color: var(--rx-ink); font-size: 14px; }
+#card[data-skin="reactor"] .hdr-plan { color: #3d554b; opacity: 1; }
+#card[data-skin="reactor"] .rail { width: 46px; gap: 8px; align-items: center; padding-top: 5px; }
+#card[data-skin="reactor"] .railbtn {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #f4f4ee, #b9bdb4 75%);
+  border: 2px solid #6b7a72; color: #2a332e;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.6);
+}
+#card[data-skin="reactor"] #close { background: radial-gradient(circle at 38% 32%, #ff8a7a, #c0392b 75%); border-color: #7a2318; color: #4a0e07; }
+#card[data-skin="reactor"] .railbtn svg { width: 15px; height: 15px; }
+#card[data-skin="reactor"] .blabel {
+  background: #10201a; color: #e6efe9; border: 1px solid #0a1410; border-radius: 2px;
+}
+#card[data-skin="reactor"] .bval {
+  font-family: "Menlo", monospace; font-size: 15px;
+  background: #14100e; color: var(--rx-led); border: 2px solid #3d4a44; border-radius: 3px;
+  padding: 1px 7px; text-shadow: 0 0 6px rgba(255,75,58,0.65);
+}
+#card[data-skin="reactor"] .track { background: #0d0f0e; border: 2px solid #3d4a44; height: 16px; border-radius: 2px; }
+#card[data-skin="reactor"] .fill { background: #35d07a !important; border-radius: 0; }
+#card[data-skin="reactor"] .fill.alert { background: var(--rx-led) !important; }
+#card[data-skin="reactor"] .sub { color: #33473f; }
+#card[data-skin="reactor"] .abs { color: #52685e; }
+#card[data-skin="reactor"] .pingline { color: #1c4a35; }
+#card[data-skin="reactor"] .pingline.fired { color: #0e5c2e; }
+#card[data-skin="reactor"] .foot { border-top: 2px solid #5c7a6e; color: #3d554b; }
+#card[data-skin="reactor"] .foot-code { color: #33473f; }
+#card[data-skin="reactor"] #updated.stale { color: #a02818; }
+#card[data-skin="reactor"] #monitor { border-top: 2px solid #5c7a6e; }
+#card[data-skin="reactor"] .mon-title { color: var(--rx-ink); }
+#card[data-skin="reactor"] .ecg {
+  --ecg: #1a7a2a; --ecg-bg: #f4f0e0; --ecg-border: #7a8a80; --ecg-grid: #cfc7a8; --ecg-label: #8a8468;
+  border-width: 2px;
+}
+#card[data-skin="reactor"] .ecg-cap { color: #3d554b; }
+#card[data-skin="reactor"] #settings { border-top: 2px solid #5c7a6e; }
+#card[data-skin="reactor"] .srow label { color: var(--rx-ink); }
+#card[data-skin="reactor"] .srow input, #card[data-skin="reactor"] .srow select {
+  background: #14100e; color: #ffb84d; border-bottom: 2px solid #3d4a44; font-family: "Menlo", monospace; font-size: 12px;
+}
+#card[data-skin="reactor"] .srow input[type="checkbox"] { accent-color: #1d8a4c; }
+#card[data-skin="reactor"] #save { background: #1d8a4c; color: #eaffea; border: 2px solid #10592e; border-radius: 3px; }
+#card[data-skin="reactor"] .ghost { color: var(--rx-ink); border: 2px solid #5c7a6e; border-radius: 3px; }
+#card[data-skin="reactor"] .mini { border: 1px dashed #5c7a6e; color: var(--rx-ink); }
+#card[data-skin="reactor"] .hbdel { border-color: #a02818; color: #a02818; border-radius: 50%; }
+#card[data-skin="reactor"] .snote { color: #52685e; }

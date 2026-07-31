@@ -119,6 +119,19 @@ function paintStepdown(d) {
   el.classList.remove('fired');
 }
 
+// Reactor skin: annunciator tile grid that lights with usage
+function drawAnnunc(d) {
+  const pct = d.session ? d.session.pct : null;
+  const hbOn = !!(d.heartbeat && d.heartbeat.enabled);
+  const tiles = [
+    { label: 'REACTOR NORMAL', cls: 'a-green', lit: pct != null && pct < 75 },
+    { label: 'HIGH USAGE', cls: 'a-amber', lit: pct != null && pct >= 75 },
+    { label: 'SCRAM 90%', cls: 'a-red', lit: pct != null && pct >= 90 },
+    { label: 'AUTO PING', cls: 'a-white', lit: hbOn },
+  ];
+  return tiles.map((t) => `<div class="atile ${t.cls}${t.lit ? ' lit' : ''}">${t.label}</div>`).join('');
+}
+
 // Draw an ECG-style trace: flat baseline with a QRS spike at each ping, over a
 // 24-hour window, time axis along the bottom.
 function drawECG(history) {
@@ -254,7 +267,7 @@ function drawDash(d) {
 }
 
 let curSkin = 'lcars';
-const FOOTCODES = { lcars: 'LCARS 24-47', dash: 'EB 16.4', term: 'READY.', scribble: 'p.1 \u00B7 draft', enigma: 'ENIGMA I \u00B7 Nr. A16247' };
+const FOOTCODES = { lcars: 'LCARS 24-47', dash: 'EB 16.4', term: 'READY.', scribble: 'p.1 \u00B7 draft', enigma: 'ENIGMA I \u00B7 Nr. A16247', nixie: 'IN-14 \u00B7 EST. 1897', synth: 'NEON DREAMS \u00B7 2087', cockpit: 'B737-8 \u00B7 G-JONG', gameboy: 'DMG-01', reactor: 'UNIT 1 \u00B7 CTRL RM' };
 function applySkin(s) {
   curSkin = s || 'lcars';
   const card = document.getElementById('card');
@@ -268,6 +281,7 @@ function render(d) {
   if (d.skin) applySkin(d.skin);
   if (d.plan) $('plan').textContent = d.plan;
   if (curSkin === 'dash') $('gauges').innerHTML = drawDash(d);
+  if (curSkin === 'reactor') $('annunc').innerHTML = drawAnnunc(d);
 
   setBar('s-fill', 's-pct', d.session.pct);
   $('s-reset').textContent = d.session.active && d.session.reset

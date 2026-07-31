@@ -108,7 +108,7 @@ last 24 hours — a spike per ping, time axis along the bottom.
 
 ## Look & feel — skins
 
-Five skins, switchable in ⚙ → SKIN (saved across restarts):
+Ten skins, switchable in ⚙ → SKIN (saved across restarts):
 
 - **LCARS** (default) — Star Trek: TNG computer panel. Orange elbow, colored
   function rail, segmented meters. For the exact TV font install the free
@@ -122,6 +122,17 @@ Five skins, switchable in ⚙ → SKIN (saved across restarts):
 - **ENIGMA** — wartime cipher machine: walnut case, brass plaques, black bakelite
   keys with silver rims, cream rotor-window readouts, amber lampboard bars,
   typewriter lettering, and a serial plate (ENIGMA I · Nr. A16247).
+- **NIXIE STEAMPUNK** — copper and brass machinery with the percentages as glowing
+  nixie tubes (orange digits, glass envelope, teal base).
+- **SYNTHWAVE** — neon magenta/cyan outlines glowing on deep purple; laser-pink ECG.
+- **COCKPIT** — 737-style EFIS: grey panel, black screens, cyan labels, amber LED
+  readouts, green tapes, registration plate G-JONG.
+- **GAME BOY** — four shades of DMG pea-green, chunky double borders, pixel-era
+  monospace. DMG-01.
+- **REACTOR** — seafoam control-room panel with a working **annunciator grid**:
+  REACTOR NORMAL / HIGH USAGE (lights at 75%) / SCRAM 90% (blinks red) / AUTO PING,
+  black meter windows with red LED digits, strip-chart recorder ECG, and a red
+  mushroom close button.
 
 The heartbeat ECG recolours per skin (green / LCD blue / phosphor / ink).
 
