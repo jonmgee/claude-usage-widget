@@ -121,15 +121,21 @@ function drawECG(history) {
   pts.sort((a, b) => a[0] - b[0]);
   const poly = pts.map((p) => `${p[0].toFixed(1)},${Math.max(2, Math.min(H - 12, p[1])).toFixed(1)}`).join(' ');
 
+  // vertical grid on real 3-hour clock boundaries; labels every 6h as clock times
+  const HOUR = 3600e3;
+  const lastHour = Math.floor(now / HOUR) * HOUR;
   let grid = '';
-  for (let gx = 0; gx <= W; gx += W / 8) grid += `<line x1="${gx}" y1="0" x2="${gx}" y2="${H - 11}" style="stroke:var(--ecg-grid)" stroke-width="1"/>`;
+  for (let t = lastHour; t >= start; t -= 3 * HOUR) {
+    const gx = xOf(t);
+    grid += `<line x1="${gx.toFixed(1)}" y1="0" x2="${gx.toFixed(1)}" y2="${H - 11}" style="stroke:var(--ecg-grid)" stroke-width="1"/>`;
+  }
   for (let gy = 0; gy <= H - 11; gy += (H - 11) / 4) grid += `<line x1="0" y1="${gy}" x2="${W}" y2="${gy}" style="stroke:var(--ecg-grid)" stroke-width="1"/>`;
 
   let labels = '';
-  for (const [h, lab] of [[-24, '24H'], [-18, '18H'], [-12, '12H'], [-6, '6H'], [0, 'NOW']]) {
-    const x = Math.min(W - 2, Math.max(2, xOf(now + h * 3600e3)));
-    const anc = h === -24 ? 'start' : h === 0 ? 'end' : 'middle';
-    labels += `<text x="${x}" y="${H - 2}" style="fill:var(--ecg-label)" font-size="7" text-anchor="${anc}">${lab}</text>`;
+  for (let t = lastHour; t >= start; t -= 6 * HOUR) {
+    const x = Math.min(W - 8, Math.max(8, xOf(t)));
+    const hh = String(new Date(t).getHours()).padStart(2, '0');
+    labels += `<text x="${x.toFixed(1)}" y="${H - 2}" style="fill:var(--ecg-label)" font-size="7" text-anchor="middle">${hh}:00</text>`;
   }
 
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Heartbeat ECG">
