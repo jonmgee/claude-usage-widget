@@ -192,6 +192,219 @@ function renderMonitor(d) {
     : 'NO BEATS \u00B7 MONITORING';
 }
 
+// ---------- Per-skin centrepiece visualizations ----------
+
+// NIXIE: percentages as real nixie tubes + a brass pressure gauge for weekly
+function drawNixie(d) {
+  const pct = d.session.pct == null ? '--' : String(d.session.pct);
+  const tubes = [...pct].map((ch) => `
+    <span style="position:relative;display:inline-flex;align-items:center;justify-content:center;
+      width:36px;height:56px;margin:0 2px;
+      background:radial-gradient(ellipse at 50% 35%, #241109, #120803 75%);
+      border:2px solid rgba(215,235,235,0.3); border-bottom:5px solid #2aa198;
+      border-radius:11px 11px 6px 6px; box-shadow: inset 0 0 10px rgba(255,120,20,0.25);">
+      <span style="position:absolute;font-family:Georgia,serif;font-size:30px;color:rgba(255,157,60,0.13);">8</span>
+      <span style="position:relative;font-family:Georgia,serif;font-size:30px;color:#ff9d3c;
+        text-shadow:0 0 8px rgba(255,130,30,1),0 0 20px rgba(255,110,20,0.6);">${ch}</span>
+    </span>`).join('');
+  const w = d.week.pct == null ? 0 : d.week.pct;
+  const ang = -135 + (w / 100) * 270;
+  let ticks = '';
+  for (let p = 0; p <= 100; p += 10) {
+    const a = (-135 + (p / 100) * 270 - 90) * Math.PI / 180;
+    const x1 = 45 + 32 * Math.cos(a), y1 = 45 + 32 * Math.sin(a);
+    const x2 = 45 + 37 * Math.cos(a), y2 = 45 + 37 * Math.sin(a);
+    ticks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#4a3018" stroke-width="1.6"/>`;
+  }
+  const sReset = d.session.active && d.session.reset ? shortCountdown(d.session.reset) : 'IDLE';
+  return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+    <div style="text-align:center;">
+      <div style="display:flex;align-items:center;">${tubes}
+        <span style="font-family:Georgia,serif;font-size:15px;color:#ff9d3c;text-shadow:0 0 6px rgba(255,130,30,0.8);margin-left:3px;">%</span></div>
+      <div style="font-size:10px;color:#c9a883;letter-spacing:0.1em;margin-top:4px;">SESSION \u00B7 RESET ${sReset}</div>
+    </div>
+    <div style="flex:1;height:6px;background:linear-gradient(#8a5426,#c77b46 45%,#6b3d1a);border-radius:3px;box-shadow:0 1px 2px #000;"></div>
+    <div style="text-align:center;">
+      <svg width="90" height="90" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="43" fill="url(#nxbrass)" stroke="#5c3416" stroke-width="2"/>
+        <defs><radialGradient id="nxbrass" cx="0.4" cy="0.3"><stop offset="0" stop-color="#e2bd7c"/><stop offset="1" stop-color="#96702f"/></radialGradient></defs>
+        <circle cx="45" cy="45" r="36" fill="#f3ead2" stroke="#5c3416" stroke-width="1.5"/>
+        ${ticks}
+        <text x="45" y="66" font-family="Georgia,serif" font-size="9" fill="#4a3018" text-anchor="middle">WEEKLY</text>
+        <text x="45" y="34" font-family="Georgia,serif" font-size="13" fill="#4a3018" text-anchor="middle" font-weight="bold">${w}%</text>
+        <g transform="rotate(${ang.toFixed(1)} 45 45)"><polygon points="45,45 43,49 45,14 47,49" fill="#8a1f10"/></g>
+        <circle cx="45" cy="45" r="4" fill="#4a3018"/>
+      </svg>
+    </div>
+  </div>`;
+}
+
+// SYNTHWAVE: sunset over a perspective grid, usage as a neon EQ bank
+function drawSynth(d) {
+  const pct = d.session.pct == null ? 0 : d.session.pct;
+  const w = d.week.pct == null ? 0 : d.week.pct;
+  const N = 18;
+  const lit = Math.round((pct / 100) * N);
+  let eq = '';
+  for (let i = 0; i < N; i++) {
+    const h = 14 + 22 * Math.abs(Math.sin(i * 1.7 + 1));
+    const x = 14 + i * 13;
+    const on = i < lit;
+    eq += `<rect x="${x}" y="${(138 - h).toFixed(1)}" width="9" height="${h.toFixed(1)}" rx="2"
+      fill="${on ? '#ff2bd6' : 'none'}" stroke="${on ? 'none' : '#3a2470'}" stroke-width="1"
+      ${on ? 'style="filter:drop-shadow(0 0 4px rgba(255,43,214,0.8))"' : ''}/>`;
+  }
+  let grid = '';
+  for (const gy of [88, 93, 100, 110, 124]) grid += `<line x1="0" y1="${gy}" x2="260" y2="${gy}" stroke="#ff2bd6" stroke-opacity="0.25" stroke-width="1"/>`;
+  for (let i = -6; i <= 6; i++) grid += `<line x1="130" y1="86" x2="${130 + i * 42}" y2="140" stroke="#ff2bd6" stroke-opacity="0.18" stroke-width="1"/>`;
+  const wx = 14 + (w / 100) * 232;
+  const sReset = d.session.active && d.session.reset ? shortCountdown(d.session.reset) : 'IDLE';
+  return `<svg viewBox="0 0 260 150" style="display:block;width:100%">
+    <defs>
+      <linearGradient id="swsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d0f3d"/><stop offset="1" stop-color="#3d1160"/></linearGradient>
+      <linearGradient id="swsun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd76a"/><stop offset="1" stop-color="#ff2bd6"/></linearGradient>
+    </defs>
+    <rect x="0" y="0" width="260" height="86" fill="url(#swsky)"/>
+    <circle cx="130" cy="62" r="26" fill="url(#swsun)"/>
+    <rect x="100" y="66" width="60" height="3" fill="#1d0f3d"/><rect x="100" y="73" width="60" height="4" fill="#1d0f3d"/><rect x="100" y="81" width="60" height="5" fill="#1d0f3d"/>
+    <polygon points="0,86 40,58 78,86" fill="#170a33"/><polygon points="180,86 224,52 260,86" fill="#170a33"/>
+    <text x="8" y="16" fill="#2be8f4" font-size="9" letter-spacing="2" style="text-shadow:0 0 6px rgba(43,232,244,0.8)">SESSION ${pct}%</text>
+    <text x="252" y="16" fill="#ff2bd6" font-size="9" letter-spacing="2" text-anchor="end">RESET ${sReset}</text>
+    <rect x="0" y="86" width="260" height="64" fill="#10062a"/>
+    ${grid}${eq}
+    <line x1="${wx.toFixed(1)}" y1="88" x2="${wx.toFixed(1)}" y2="140" stroke="#2be8f4" stroke-width="2" style="filter:drop-shadow(0 0 4px rgba(43,232,244,0.9))"/>
+    <text x="${Math.min(224, wx + 4).toFixed(1)}" y="97" fill="#2be8f4" font-size="8">WK ${w}%</text>
+  </svg>`;
+}
+
+// COCKPIT: primary flight display — attitude ball + two tape instruments
+function drawCockpit(d) {
+  const pct = d.session.pct == null ? 0 : d.session.pct;
+  const w = d.week.pct == null ? 0 : d.week.pct;
+  function tape(x, val, label, bugTiers) {
+    const y0 = 10, h = 118;
+    const yOf = (p) => y0 + h - (p / 100) * h;
+    let t = `<rect x="${x}" y="${y0}" width="52" height="${h}" fill="#0d1012" stroke="#3a3d40"/>`;
+    for (let p = 0; p <= 100; p += 10) {
+      const y = yOf(p);
+      t += `<line x1="${x}" y1="${y.toFixed(1)}" x2="${x + 7}" y2="${y.toFixed(1)}" stroke="#cfd4d8" stroke-width="1"/>`;
+      if (p % 20 === 0) t += `<text x="${x + 11}" y="${(y + 3).toFixed(1)}" fill="#cfd4d8" font-size="7">${p}</text>`;
+    }
+    t += `<rect x="${x}" y="${y0}" width="3" height="${((100 - 90) / 100 * h).toFixed(1)}" fill="#ff3b30"/>`;
+    for (const b of (bugTiers || [])) {
+      t += `<polygon points="${x + 52},${(yOf(b) - 4).toFixed(1)} ${x + 46},${yOf(b).toFixed(1)} ${x + 52},${(yOf(b) + 4).toFixed(1)}" fill="#ff4bd8"/>`;
+    }
+    const vy = Math.max(y0 + 9, Math.min(y0 + h - 9, yOf(val)));
+    t += `<rect x="${x + 2}" y="${(vy - 8).toFixed(1)}" width="40" height="16" fill="#000" stroke="#ffb300"/>
+      <text x="${x + 22}" y="${(vy + 4).toFixed(1)}" fill="#ffb300" font-size="11" font-family="Menlo,monospace" text-anchor="middle">${val}</text>
+      <text x="${x + 26}" y="${y0 + h + 11}" fill="#35e0e8" font-size="8" text-anchor="middle" letter-spacing="1">${label}</text>`;
+    return t;
+  }
+  const tiers = (d.stepdown && d.stepdown.enabled ? d.stepdown.tiers || [] : []).map((t) => t.pct);
+  const sReset = d.session.active && d.session.reset ? shortCountdown(d.session.reset) : 'IDLE';
+  return `<svg viewBox="0 0 260 150" style="display:block;width:100%">
+    <clipPath id="ball"><rect x="80" y="10" width="100" height="100" rx="8"/></clipPath>
+    <g clip-path="url(#ball)">
+      <rect x="80" y="10" width="100" height="50" fill="#2b7fd4"/>
+      <rect x="80" y="60" width="100" height="50" fill="#8a5a2b"/>
+      <line x1="80" y1="60" x2="180" y2="60" stroke="#fff" stroke-width="1.5"/>
+      <line x1="115" y1="42" x2="145" y2="42" stroke="#fff" stroke-width="1"/><text x="108" y="45" fill="#fff" font-size="6">10</text>
+      <line x1="120" y1="51" x2="140" y2="51" stroke="#fff" stroke-width="1"/>
+      <line x1="120" y1="69" x2="140" y2="69" stroke="#fff" stroke-width="1"/>
+      <line x1="115" y1="78" x2="145" y2="78" stroke="#fff" stroke-width="1"/><text x="108" y="81" fill="#fff" font-size="6">10</text>
+    </g>
+    <path d="M105 60 h20 l5 6 5-6 h20" fill="none" stroke="#ffd21e" stroke-width="3"/>
+    <rect x="80" y="10" width="100" height="100" rx="8" fill="none" stroke="#3a3d40" stroke-width="2"/>
+    <text x="130" y="124" fill="#23d160" font-size="8" text-anchor="middle" font-family="Menlo,monospace">RESET ${sReset}</text>
+    <text x="130" y="137" fill="#35e0e8" font-size="7" text-anchor="middle">${d.week.reset ? 'WK ' + shortDay(d.week.reset) : ''}</text>
+    ${tape(10, pct, 'SESSION', tiers)}
+    ${tape(196, w, 'WEEKLY', [])}
+  </svg>`;
+}
+
+// GAME BOY: session usage as a Tetris well; stats panel on the right
+function drawGameboy(d) {
+  const C = ['#0f380f', '#306230', '#8bac0f', '#9bbc0f'];
+  const pct = d.session.pct == null ? 0 : d.session.pct;
+  const w = d.week.pct == null ? 0 : d.week.pct;
+  const cols = 10, rows = 12, cell = 11;
+  const filledRows = Math.round((pct / 100) * rows);
+  let cells = '';
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const filled = r >= rows - filledRows;
+      const hash = (r * 31 + c * 17 + 7) % 5;
+      if (filled && hash !== 4) {
+        cells += `<rect x="${12 + c * cell}" y="${12 + r * cell}" width="${cell - 1}" height="${cell - 1}" fill="${hash % 2 ? C[0] : C[1]}"/>
+          <rect x="${14 + c * cell}" y="${14 + r * cell}" width="${cell - 5}" height="${cell - 5}" fill="none" stroke="${C[3]}" stroke-width="1"/>`;
+      }
+    }
+  }
+  let piece = '';
+  for (const [px, py] of [[4, 0], [5, 0], [5, 1], [6, 1]]) {
+    piece += `<rect x="${12 + px * cell}" y="${12 + py * cell}" width="${cell - 1}" height="${cell - 1}" fill="${C[0]}"/>`;
+  }
+  let bricks = '';
+  for (let r = 0; r < 13; r++) {
+    bricks += `<rect x="2" y="${10 + r * cell}" width="8" height="${cell - 2}" fill="none" stroke="${C[0]}" stroke-width="1.5"/>
+      <rect x="${12 + cols * cell + 1}" y="${10 + r * cell}" width="8" height="${cell - 2}" fill="none" stroke="${C[0]}" stroke-width="1.5"/>`;
+  }
+  function box(y, label, value) {
+    return `<rect x="146" y="${y}" width="104" height="34" fill="none" stroke="${C[0]}" stroke-width="2"/>
+      <rect x="148.5" y="${y + 2.5}" width="99" height="29" fill="none" stroke="${C[0]}" stroke-width="1"/>
+      <text x="198" y="${y + 14}" fill="${C[0]}" font-size="9" text-anchor="middle" font-family="Courier New,monospace" font-weight="bold">${label}</text>
+      <text x="198" y="${y + 28}" fill="${C[0]}" font-size="12" text-anchor="middle" font-family="Courier New,monospace" font-weight="bold">${value}</text>`;
+  }
+  const sReset = d.session.active && d.session.reset ? shortCountdown(d.session.reset) : 'IDLE';
+  return `<svg viewBox="0 0 260 152" style="display:block;width:100%">
+    ${bricks}
+    <rect x="11" y="11" width="${cols * cell + 1}" height="${rows * cell + 1}" fill="none" stroke="${C[0]}" stroke-width="1.5"/>
+    ${cells}${piece}
+    ${box(11, 'SESSION', pct + '%')}
+    ${box(55, 'WEEKLY', w + '%')}
+    ${box(99, 'RESET', sReset)}
+    <text x="198" y="148" fill="${C[1]}" font-size="8" text-anchor="middle" font-family="Courier New,monospace" font-weight="bold">${fmtTokens(d.session.tokens || 0)} TOK</text>
+  </svg>`;
+}
+
+// REACTOR: industrial edgewise needle meters on cream scale plates
+function drawReactorMeters(d) {
+  function meter(x, val, label) {
+    const v = val == null ? 0 : val;
+    let t = '';
+    for (let p = 0; p <= 100; p += 10) {
+      const a = (-50 + (p / 100) * 100 - 90) * Math.PI / 180;
+      const x1 = x + 59 + 44 * Math.cos(a), y1 = 78 + 44 * Math.sin(a);
+      const x2 = x + 59 + 51 * Math.cos(a), y2 = 78 + 51 * Math.sin(a);
+      t += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#2a2a24" stroke-width="${p % 20 ? 1 : 1.8}"/>`;
+      if (p % 20 === 0) {
+        const xt = x + 59 + 58 * Math.cos(a), yt = 78 + 58 * Math.sin(a);
+        t += `<text x="${xt.toFixed(1)}" y="${(yt + 2.5).toFixed(1)}" fill="#2a2a24" font-size="7" text-anchor="middle">${p}</text>`;
+      }
+    }
+    const a0 = (-50 + 90 - 90) * Math.PI / 180, a1 = (50 - 90) * Math.PI / 180;
+    const rx0 = x + 59 + 47.5 * Math.cos(a0), ry0 = 78 + 47.5 * Math.sin(a0);
+    const rx1 = x + 59 + 47.5 * Math.cos(a1), ry1 = 78 + 47.5 * Math.sin(a1);
+    t += `<path d="M ${rx0.toFixed(1)} ${ry0.toFixed(1)} A 47.5 47.5 0 0 1 ${rx1.toFixed(1)} ${ry1.toFixed(1)}" fill="none" stroke="#c0392b" stroke-width="6"/>`;
+    const na = -50 + (Math.max(0, Math.min(100, v)) / 100) * 100;
+    return `<rect x="${x}" y="8" width="118" height="86" rx="4" fill="#efe8d2" stroke="#3d4a44" stroke-width="3"/>
+      ${t}
+      <g transform="rotate(${na.toFixed(1)} ${x + 59} 78)"><polygon points="${x + 59},78 ${x + 57},80 ${x + 59},32 ${x + 61},80" fill="#1a1a16"/></g>
+      <circle cx="${x + 59}" cy="78" r="4.5" fill="#3d4a44"/>
+      <line x1="${x + 8}" y1="20" x2="${x + 44}" y2="14" stroke="rgba(255,255,255,0.45)" stroke-width="3"/>
+      <rect x="${x + 24}" y="96" width="70" height="15" fill="#10201a"/>
+      <text x="${x + 59}" y="107" fill="#e6efe9" font-size="8" text-anchor="middle" letter-spacing="1">${label} ${v}%</text>`;
+  }
+  const sReset = d.session.active && d.session.reset ? shortCountdown(d.session.reset) : 'IDLE';
+  return `<svg viewBox="0 0 260 126" style="display:block;width:100%">
+    ${meter(4, d.session.pct, 'SESSION')}
+    ${meter(138, d.week.pct, 'WEEKLY')}
+    <text x="130" y="122" fill="#3d554b" font-size="8" text-anchor="middle">RESET ${sReset}${d.week.reset ? ' \u00B7 WK ' + shortDay(d.week.reset) : ''}</text>
+  </svg>`;
+}
+
+const SKIN_VIZ = { nixie: drawNixie, synth: drawSynth, cockpit: drawCockpit, gameboy: drawGameboy, reactor: drawReactorMeters };
+
 // ---------- Dashboard skin: Bugatti-style gauges ----------
 function shortCountdown(ms) {
   if (!ms) return '';
@@ -282,6 +495,7 @@ function render(d) {
   if (d.plan) $('plan').textContent = d.plan;
   if (curSkin === 'dash') $('gauges').innerHTML = drawDash(d);
   if (curSkin === 'reactor') $('annunc').innerHTML = drawAnnunc(d);
+  if (SKIN_VIZ[curSkin]) $('skinviz').innerHTML = SKIN_VIZ[curSkin](d);
 
   setBar('s-fill', 's-pct', d.session.pct);
   $('s-reset').textContent = d.session.active && d.session.reset

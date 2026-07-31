@@ -757,3 +757,14 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
 #card[data-skin="reactor"] .mini { border: 1px dashed #5c7a6e; color: var(--rx-ink); }
 #card[data-skin="reactor"] .hbdel { border-color: #a02818; color: #a02818; border-radius: 50%; }
 #card[data-skin="reactor"] .snote { color: #52685e; }
+
+/* --- per-skin centrepiece visualizations replace the plain bars --- */
+#skinviz { display: none; }
+#card[data-skin="nixie"] .block, #card[data-skin="synth"] .block,
+#card[data-skin="cockpit"] .block, #card[data-skin="gameboy"] .block,
+#card[data-skin="reactor"] .block { display: none; }
+#card[data-skin="nixie"] #skinviz, #card[data-skin="synth"] #skinviz,
+#card[data-skin="cockpit"] #skinviz, #card[data-skin="gameboy"] #skinviz,
+#card[data-skin="reactor"] #skinviz { display: block; margin-bottom: 10px; }
+#card[data-skin="synth"] #skinviz svg { border: 1px solid #3a2470; border-radius: 6px; }
+#card[data-skin="nixie"] #skinviz { padding: 4px 0 2px; }
