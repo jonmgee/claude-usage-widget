@@ -13,6 +13,7 @@ const CFG = path.join(app.getPath('userData'), 'config.json');
 const DEFAULTS = {
   refreshSec: 60,
   alwaysOnTop: true,
+  docked: false, // snapped to the bottom-right corner; resizes re-snap while true
   skin: 'lcars', // lcars | dash | term | scribble
   caffeinate: 'off', // off | system (display may sleep) | display (keep both awake)
   heartbeatEnabled: false,
@@ -234,7 +235,16 @@ function createWindow() {
   });
   if (cfg.alwaysOnTop) win.setAlwaysOnTop(true, 'floating');
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
-  win.once('ready-to-show', () => { push(); win.webContents.send('pin', cfg.alwaysOnTop); });
+  win.once('ready-to-show', () => {
+    push();
+    win.webContents.send('pin', cfg.alwaysOnTop);
+    if (cfg.docked) snapToCorner();
+  });
+  // dragging the window by hand releases the dock anchor
+  win.on('moved', () => {
+    if (Date.now() - lastProgMove < 300) return; // ignore our own setBounds
+    if (cfg.docked) { cfg.docked = false; saveCfg(cfg); }
+  });
   startTimer();
 }
 
@@ -274,14 +284,18 @@ ipcMain.on('togglePin', () => {
   if (win) win.setAlwaysOnTop(cfg.alwaysOnTop, 'floating');
   if (win) win.webContents.send('pin', cfg.alwaysOnTop);
 });
-ipcMain.on('dock', () => {
-  if (!win) return;
-  const { workArea } = screen.getPrimaryDisplay();
+let lastProgMove = 0;
+function snapToCorner() {
+  if (!win || win.isDestroyed()) return;
   const b = win.getBounds();
-  win.setPosition(
-    workArea.x + workArea.width - b.width - 16,
-    workArea.y + workArea.height - b.height - 16
-  );
+  const wa = screen.getDisplayMatching(b).workArea;
+  lastProgMove = Date.now();
+  win.setPosition(wa.x + wa.width - b.width - 16, wa.y + wa.height - b.height - 16);
+}
+ipcMain.on('dock', () => {
+  cfg.docked = true;
+  saveCfg(cfg);
+  snapToCorner();
 });
 ipcMain.on('close', () => { if (win) win.close(); });
 ipcMain.on('fitHeight', (_e, h) => {
@@ -289,8 +303,17 @@ ipcMain.on('fitHeight', (_e, h) => {
   const b = win.getBounds();
   const wa = screen.getDisplayMatching(b).workArea;
   const newH = Math.max(180, Math.min(wa.height - 16, Math.round(h)));
-  // growing pushes the window downward — shift it up if the bottom edge
-  // would leave the screen (e.g. when docked to a bottom corner)
+  lastProgMove = Date.now();
+  if (cfg.docked) {
+    // docked: grow/shrink anchored to the bottom-right corner
+    win.setBounds({
+      x: wa.x + wa.width - b.width - 16,
+      y: wa.y + wa.height - newH - 16,
+      width: b.width, height: newH,
+    });
+    return;
+  }
+  // free-floating: keep top edge, but shift up if the bottom would leave the screen
   let y = b.y;
   const maxY = wa.y + wa.height - 8 - newH;
   if (y > maxY) y = Math.max(wa.y + 8, maxY);
