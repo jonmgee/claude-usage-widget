@@ -89,13 +89,19 @@ function paintPing(d) {
   el.classList.remove('hidden');
   const tri = '\u25B8'; // U+25B8 escape so file encoding can't mangle it
   if (!hb.available) { el.textContent = `${tri} CLI NOT FOUND`; el.classList.remove('fired'); return; }
-  const firedToday = hb.lastAt && new Date(hb.lastAt).toDateString() === new Date().toDateString();
+  const today = new Date().toDateString();
+  const firedToday = hb.lastAt && new Date(hb.lastAt).toDateString() === today;
+  const failedToday = hb.lastError && new Date(hb.lastError.at).toDateString() === today
+    && (!hb.lastAt || hb.lastError.at > hb.lastAt);
   const nxt = nextPing(hb.times);
   const parts = [];
-  if (firedToday) parts.push(`PINGED ${hhmm(hb.lastAt)}`);
+  if (failedToday) parts.push(`PING FAILED ${hhmm(hb.lastError.at)}`);
+  else if (firedToday) parts.push(`PINGED ${hhmm(hb.lastAt)}`);
   if (nxt) parts.push(`NEXT ${nxt}`);
   el.textContent = `${tri} ` + (parts.length ? parts.join(' \u00B7 ') : 'NO PING TIMES SET');
-  el.classList.toggle('fired', !!firedToday);
+  el.title = failedToday && hb.lastError.error ? hb.lastError.error : '';
+  el.classList.toggle('failed', !!failedToday);
+  el.classList.toggle('fired', !failedToday && !!firedToday);
 }
 
 // Auto step-down status line

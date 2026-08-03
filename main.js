@@ -19,7 +19,9 @@ const DEFAULTS = {
   heartbeatEnabled: false,
   heartbeatTimes: ['15:30'], // HH:MM local — each ping starts a window ending ~5h later
   lastHeartbeatAt: null,   // ms of last successful ping (for the countdown + display)
-  lastFires: {},           // { 'HH:MM': dayKey } guard so each time fires once/day
+  lastFires: {},           // { 'HH:MM': dayKey } set ONLY on success now
+  pingFails: {},           // { 'HH:MM': {day, attempts} } retry tracker (max 3/day)
+  lastPingError: null,     // { at: ms, error: str } most recent failure, for display
   heartbeats: [],          // ms timestamps of every ping (drives the ECG monitor)
   stepdownEnabled: false,
   stepdownTiers: [],       // [{pct: 50, model: 'opus'}, ...] highest crossed tier wins
@@ -48,6 +50,7 @@ function loadCfg() {
     c.heartbeatTimes = c.heartbeatTime ? [c.heartbeatTime] : ['15:30'];
   }
   if (!c.lastFires || typeof c.lastFires !== 'object') c.lastFires = {};
+  if (!c.pingFails || typeof c.pingFails !== 'object') c.pingFails = {};
   return c;
 }
 function saveCfg(c) {
@@ -90,6 +93,7 @@ function build() {
       enabled: cfg.heartbeatEnabled,
       times: cfg.heartbeatTimes || [],
       lastAt: cfg.lastHeartbeatAt,
+      lastError: cfg.lastPingError,
       available: !!CLI,
       history: cfg.heartbeats || [],
     },
@@ -111,9 +115,17 @@ function fireHeartbeat() {
     execFile(CLI,
       ['-p', 'Reply with the single word: ok', '--model', 'haiku', '--no-session-persistence'],
       { timeout: 90000, windowsHide: true, env },
-      (err) => {
-        if (err) { resolve({ ok: false, error: String(err.message || err) }); return; }
+      (err, _stdout, stderr) => {
+        if (err) {
+          const msg = String((stderr || '').trim() || err.message || err).slice(0, 160);
+          cfg.lastPingError = { at: Date.now(), error: msg };
+          saveCfg(cfg);
+          push();
+          resolve({ ok: false, error: msg });
+          return;
+        }
         const at = Date.now();
+        cfg.lastPingError = null;
         cfg.lastHeartbeatAt = at;
         cfg.heartbeats = [...(cfg.heartbeats || []), at]
           .filter((t) => t > at - 14 * 24 * 60 * 60 * 1000) // keep 14 days
@@ -134,14 +146,24 @@ function maybeHeartbeat(usage) {
   for (const t of times) {
     const [h, m] = String(t).split(':').map(Number);
     if (Number.isNaN(h) || Number.isNaN(m)) continue;
-    if (cfg.lastFires[t] === dayKey) continue;          // this slot already handled today
+    if (cfg.lastFires[t] === dayKey) continue;          // this slot succeeded today
     const scheduled = new Date(now); scheduled.setHours(h, m, 0, 0);
     if (now < scheduled) continue;                       // not time yet
     if (now - scheduled > 60 * 60 * 1000) continue;      // missed by >1h — skip today
     if (usage.session.active) continue;                  // window already running; ping would be wasted
-    cfg.lastFires[t] = dayKey;
+    const st = cfg.pingFails[t];
+    const attempts = st && st.day === dayKey ? st.attempts : 0;
+    if (attempts >= 3) continue;                         // gave up on this slot today
+    cfg.pingFails[t] = { day: dayKey, attempts: attempts + 1 }; // claim attempt before async fire
     saveCfg(cfg);
-    fireHeartbeat();
+    fireHeartbeat().then((r) => {
+      if (r.ok) {
+        cfg.lastFires[t] = dayKey;   // lock the slot only on success
+        delete cfg.pingFails[t];
+        saveCfg(cfg);
+      }
+      // on failure the attempt count stands; next 60s tick retries (max 3)
+    });
     return; // at most one ping per tick
   }
 }
