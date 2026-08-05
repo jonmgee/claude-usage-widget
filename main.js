@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -191,11 +191,22 @@ function writeCCModel(model) {
     return true;
   } catch { return false; }
 }
+function notify(title, body) {
+  try {
+    if (Notification.isSupported()) new Notification({ title, body }).show();
+  } catch { /* ignore */ }
+}
 function applyStepdown(target) {
   if (cfg.stepdownApplied == null) cfg.stepdownOriginal = readCCModel();
   if (!writeCCModel(target)) return;
+  const first = cfg.stepdownApplied == null;
   cfg.stepdownApplied = target;
   saveCfg(cfg);
+  notify(
+    'Claude step-down: ' + target.toUpperCase(),
+    (first ? 'Usage crossed your tier. ' : 'Next tier crossed. ') +
+    `New sessions now use ${target.toUpperCase()}. In an open session, type /model ${target} to switch it too.`
+  );
 }
 function restoreStepdown() {
   if (cfg.stepdownApplied == null) return;
@@ -203,6 +214,7 @@ function restoreStepdown() {
   cfg.stepdownApplied = null;
   cfg.stepdownOriginal = null;
   saveCfg(cfg);
+  notify('Claude model restored', 'Session window reset - back to your usual model.');
 }
 function maybeStepdown(usage) {
   if (!cfg.stepdownEnabled) return;
