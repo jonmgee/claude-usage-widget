@@ -16,9 +16,17 @@ const os = require('os');
 const H = 3600e3;
 const D = 86400e3;
 
-const PLAN_USAGE = path.join(
-  os.homedir(), 'Library', 'Application Support', 'Claude', 'plan-usage-history.json'
-);
+// The Claude desktop app's data folder differs per platform.
+function claudeAppDir() {
+  if (process.platform === 'win32') {
+    return path.join(process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), 'Claude');
+  }
+  if (process.platform === 'darwin') {
+    return path.join(os.homedir(), 'Library', 'Application Support', 'Claude');
+  }
+  return path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'), 'Claude');
+}
+const PLAN_USAGE = path.join(claudeAppDir(), 'plan-usage-history.json');
 
 // ---------- real plan usage (the numbers the app itself shows) ----------
 function readPlanUsage() {
@@ -144,4 +152,4 @@ function compute(opts = {}) {
   };
 }
 
-module.exports = { compute };
+module.exports = { compute, PLAN_USAGE };

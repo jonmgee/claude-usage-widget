@@ -10,7 +10,7 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
   --peach:  #ffcc99;
   --green:  #9ccc8f;
   --ecg:    #39ff88;
-  --lcars-font: "Antonio", "Avenir Next Condensed", "Helvetica Neue", Arial, sans-serif;
+  --lcars-font: "Antonio", "Avenir Next Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
 }
 
 #card {
@@ -157,7 +157,7 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
    SKIN: DASHBOARD (Bugatti instrument cluster)
    ============================================================ */
 #card[data-skin="dash"] {
-  font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+  font-family: "Avenir Next Condensed", "Arial Narrow", "Segoe UI", "Helvetica Neue", sans-serif;
   color: #b8c2ce;
   background:
     repeating-linear-gradient(45deg, #0b0d11 0 3px, #0f1218 3px 6px),
@@ -205,7 +205,7 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
    ============================================================ */
 #card[data-skin="term"] {
   --tg: #39ff88; --tg-dim: #1d8a4c; --tg-dark: #0b3a1e;
-  font-family: "Menlo", "Courier New", monospace;
+  font-family: "Menlo", "Consolas", "Courier New", monospace;
   letter-spacing: 0;
   background: #020a04;
   color: var(--tg);
@@ -263,7 +263,7 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
    ============================================================ */
 #card[data-skin="scribble"] {
   --ink: #21232b;
-  font-family: "Bradley Hand", "Chalkboard", "Chalkboard SE", "Comic Sans MS", cursive;
+  font-family: "Bradley Hand", "Chalkboard", "Chalkboard SE", "Segoe Print", "Comic Sans MS", cursive;
   text-transform: none;
   letter-spacing: 0;
   background: #fbfaf4;
@@ -350,7 +350,7 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
   --ivory: #e8dcc0;
   --lamp: #ffc766;
   --panel: #17130d;
-  font-family: "American Typewriter", "Courier New", serif;
+  font-family: "American Typewriter", "Rockwell", "Courier New", serif;
   letter-spacing: 0.04em;
   color: var(--ivory);
   background:
@@ -613,7 +613,7 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
 }
 #card[data-skin="cockpit"] .blabel { background: transparent; border: none; color: var(--efis-cyan); padding-left: 0; }
 #card[data-skin="cockpit"] .bval {
-  font-family: "Menlo", monospace; font-size: 16px;
+  font-family: "Menlo", "Consolas", monospace; font-size: 16px;
   color: var(--efis-amber); background: #0d0f08; border: 1px solid #3a3d30;
   border-radius: 3px; padding: 1px 7px; text-shadow: 0 0 6px rgba(255,179,0,0.6);
 }
@@ -633,7 +633,7 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
 #card[data-skin="cockpit"] #settings { border-top: 1px solid #2c3034; }
 #card[data-skin="cockpit"] .srow label { color: var(--efis-cyan); }
 #card[data-skin="cockpit"] .srow input, #card[data-skin="cockpit"] .srow select {
-  background: #0d0f08; color: var(--efis-amber); border-bottom: 2px solid #55595e; font-family: "Menlo", monospace; font-size: 12px;
+  background: #0d0f08; color: var(--efis-amber); border-bottom: 2px solid #55595e; font-family: "Menlo", "Consolas", monospace; font-size: 12px;
 }
 #card[data-skin="cockpit"] #save { background: linear-gradient(#2c3034, #1c1f22); color: var(--efis-green); border: 1px solid #55595e; border-radius: 3px; }
 #card[data-skin="cockpit"] .ghost { color: var(--efis-amber); border: 1px solid #55595e; border-radius: 3px; }
@@ -725,7 +725,7 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
   background: #10201a; color: #e6efe9; border: 1px solid #0a1410; border-radius: 2px;
 }
 #card[data-skin="reactor"] .bval {
-  font-family: "Menlo", monospace; font-size: 15px;
+  font-family: "Menlo", "Consolas", monospace; font-size: 15px;
   background: #14100e; color: var(--rx-led); border: 2px solid #3d4a44; border-radius: 3px;
   padding: 1px 7px; text-shadow: 0 0 6px rgba(255,75,58,0.65);
 }
@@ -749,7 +749,7 @@ html, body { background: transparent; -webkit-user-select: none; user-select: no
 #card[data-skin="reactor"] #settings { border-top: 2px solid #5c7a6e; }
 #card[data-skin="reactor"] .srow label { color: var(--rx-ink); }
 #card[data-skin="reactor"] .srow input, #card[data-skin="reactor"] .srow select {
-  background: #14100e; color: #ffb84d; border-bottom: 2px solid #3d4a44; font-family: "Menlo", monospace; font-size: 12px;
+  background: #14100e; color: #ffb84d; border-bottom: 2px solid #3d4a44; font-family: "Menlo", "Consolas", monospace; font-size: 12px;
 }
 #card[data-skin="reactor"] .srow input[type="checkbox"] { accent-color: #1d8a4c; }
 #card[data-skin="reactor"] #save { background: #1d8a4c; color: #eaffea; border: 2px solid #10592e; border-radius: 3px; }

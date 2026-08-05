@@ -22,6 +22,35 @@ npm start
 
 A compact card appears. Drag it anywhere by its top bar.
 
+## Windows
+
+The widget is cross-platform Electron, and the code now branches per platform for
+the Claude data folder (`%APPDATA%\Claude`), the CLI location, power management
+and fonts. **Windows is written but untested** — verify before trusting it:
+
+```bash
+git clone https://github.com/jonmgee/claude-usage-widget
+cd claude-usage-widget
+node check-env.js     # reports what it can find on this machine
+npm install
+npm start
+```
+
+`check-env.js` prints only paths and counts (nothing is sent anywhere). The key
+line is whether `plan-usage-history.json` is FOUND — that file is where the real
+percentages come from. If it's missing, the widget will run but show NO LIVE DATA,
+and the path in `usage.js` needs correcting for your setup.
+
+Windows differences:
+
+- **Keep-awake** uses Electron's `powerSaveBlocker` (works on both platforms now).
+  The "SCREEN OFF NOW" mode is macOS-only; on Windows it behaves as SYSTEM ONLY.
+- **The Desktop launcher** (`Claude Usage.app`) is macOS-only. On Windows, make a
+  shortcut to `npm start`, or package the app with electron-builder.
+- **Fonts** fall back to Arial Narrow / Consolas / Rockwell / Segoe Print, so the
+  skins keep their character without the Mac typefaces.
+- Needs **Node.js** installed — which on a work machine may need admin rights.
+
 ### Location note
 
 The project lives in `~/Applications/claude-usage-widget` (NOT the Desktop). macOS

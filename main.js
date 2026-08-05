@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, Notification, powerSaveBlocker } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -6,6 +6,7 @@ const { execFile } = require('child_process');
 const { compute } = require('./usage');
 
 app.setName('Claude Usage Widget');
+if (process.platform === 'win32') app.setAppUserModelId('com.jongallop.claude-usage-widget');
 
 const CFG = path.join(app.getPath('userData'), 'config.json');
 // Budgets are gone: the percentages are now the real ones from the desktop app's
@@ -31,11 +32,19 @@ const DEFAULTS = {
 
 // Locate the Claude Code CLI (the "stable launcher").
 function findCli() {
-  const cands = [
-    path.join(os.homedir(), '.local', 'bin', 'claude'),
-    '/opt/homebrew/bin/claude',
-    '/usr/local/bin/claude',
-  ];
+  const home = os.homedir();
+  const cands = process.platform === 'win32'
+    ? [
+        path.join(home, '.local', 'bin', 'claude.exe'),
+        path.join(home, '.local', 'bin', 'claude.cmd'),
+        path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'npm', 'claude.cmd'),
+        path.join(process.env.LOCALAPPDATA || path.join(home, 'AppData', 'Local'), 'Programs', 'claude', 'claude.exe'),
+      ]
+    : [
+        path.join(home, '.local', 'bin', 'claude'),
+        '/opt/homebrew/bin/claude',
+        '/usr/local/bin/claude',
+      ];
   for (const c of cands) { try { if (fs.existsSync(c)) return c; } catch { /* ignore */ } }
   return null;
 }
@@ -110,11 +119,17 @@ function push() {
 function fireHeartbeat() {
   return new Promise((resolve) => {
     if (!CLI) { resolve({ ok: false, error: 'Claude CLI not found' }); return; }
+    const sep = process.platform === 'win32' ? ';' : ':';
+    const extra = process.platform === 'win32'
+      ? [path.join(os.homedir(), '.local', 'bin')]
+      : [path.join(os.homedir(), '.local/bin'), '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin'];
     const env = { ...process.env, HOME: os.homedir(),
-      PATH: [path.join(os.homedir(), '.local/bin'), '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', process.env.PATH || ''].join(':') };
+      PATH: [...extra, process.env.PATH || ''].join(sep) };
+    // .cmd/.bat shims can only be launched through a shell on Windows
+    const needsShell = process.platform === 'win32' && /\.(cmd|bat)$/i.test(CLI);
     execFile(CLI,
       ['-p', 'Reply with the single word: ok', '--model', 'haiku', '--no-session-persistence'],
-      { timeout: 90000, windowsHide: true, env },
+      { timeout: 90000, windowsHide: true, env, shell: needsShell },
       (err, _stdout, stderr) => {
         if (err) {
           const msg = String((stderr || '').trim() || err.message || err).slice(0, 160);
@@ -229,22 +244,25 @@ function maybeStepdown(usage) {
   else if (!target && cfg.stepdownApplied) restoreStepdown(); // window reset
 }
 
-// --- caffeinate: keep the Mac awake so scheduled pings can fire ---
-// modes: off | system (-i, display may sleep) | display (-di, both awake)
-//        | system-off (-i, and put the display to sleep immediately)
-let caffProc = null;
+// --- keep the machine awake so scheduled pings can fire (cross-platform) ---
+// modes: off | system (display may sleep) | display (both awake)
+//        | system-off (system awake + display slept right now; macOS only)
+let blockerId = null;
 function applyCaffeinate(sleepScreenNow = false) {
-  if (caffProc) { try { caffProc.kill(); } catch { /* ignore */ } caffProc = null; }
+  if (blockerId !== null) {
+    try { if (powerSaveBlocker.isStarted(blockerId)) powerSaveBlocker.stop(blockerId); } catch { /* ignore */ }
+    blockerId = null;
+  }
   const mode = cfg.caffeinate || 'off';
   if (mode === 'off') return;
-  const args = mode === 'display' ? ['-di'] : ['-i'];
   try {
-    caffProc = require('child_process').spawn('/usr/bin/caffeinate', args, { stdio: 'ignore' });
-    caffProc.on('exit', () => { caffProc = null; });
-  } catch { caffProc = null; }
+    blockerId = powerSaveBlocker.start(
+      mode === 'display' ? 'prevent-display-sleep' : 'prevent-app-suspension'
+    );
+  } catch { blockerId = null; }
   // one-shot screen-off, only when the user just picked this mode --
   // not on app startup (they just launched the widget to look at it)
-  if (mode === 'system-off' && sleepScreenNow) {
+  if (mode === 'system-off' && sleepScreenNow && process.platform === 'darwin') {
     try { execFile('/usr/bin/pmset', ['displaysleepnow'], { timeout: 10000 }, () => {}); }
     catch { /* ignore */ }
   }
@@ -296,7 +314,9 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => app.quit());
 app.on('will-quit', () => {
-  if (caffProc) { try { caffProc.kill(); } catch { /* ignore */ } }
+  if (blockerId !== null) {
+    try { if (powerSaveBlocker.isStarted(blockerId)) powerSaveBlocker.stop(blockerId); } catch { /* ignore */ }
+  }
   restoreStepdown(); // never leave a silently downgraded model behind
 });
 
